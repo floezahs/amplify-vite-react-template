@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
+import "./App.css";
 
 const client = generateClient<Schema>();
 
@@ -14,16 +15,45 @@ function App() {
   }, []);
 
   function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+    let content = window.prompt("Todo content");
+
+    if (content === "") {
+      alert("No se puede ingresar un campo vacío");
+      return;
+    }
+
+    if (content !== null) {
+
+      let Ocontent = { content: content }
+      // El usuario hizo clic en "Aceptar"
+      console.log("Contenido ingresado:", content);
+      client.models.Todo.create(Ocontent);
+    } else {
+      // El usuario hizo clic en "Cancelar"
+      console.log("El usuario canceló el prompt");
+    }
+  }
+
+
+
+  function handleDeleteClick(id: string) {
+    const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este todo?");
+    if (confirmDelete) {
+      client.models.Todo.delete({ id })
+    }
   }
 
   return (
     <main>
       <h1>My todos</h1>
       <button onClick={createTodo}>+ new</button>
-      <ul>
+      <ul className="max-heigth">
         {todos.map((todo) => (
-          <li key={todo.id}>{todo.content}</li>
+          <li
+            key={todo.id}>{todo.content}
+            <br />
+            <button onClick={() => handleDeleteClick(todo.id)}>Eliminar</button>
+          </li>
         ))}
       </ul>
       <div>
